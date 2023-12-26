@@ -1,14 +1,15 @@
 import React, {useReducer} from "react";
 import AuthContext from "./authContext";
 import authReducer from "./authReducer";
-import {REGISTRO_ERROR, REGISTRO_EXITOSO,USUARIO_AUTENTICADO,LIMPIAR_ALERTA} from '../../types'
+import {REGISTRO_ERROR, REGISTRO_EXITOSO,USUARIO_AUTENTICADO,LIMPIAR_ALERTA,LOGIN_EXITOSO,LOGIN_ERROR,CERRAR_SESION} from '../../types'
 import clienteAxios from "@/config/axios";
+import tokenAuth from "@/config/tokenAuth";
 
 const AuthState = ({children}) => {
 
     //Definir un state inicial
     const initialState = {
-        token:'UN TOKEN',
+        token: typeof window !== 'undefined' ? localStorage.getItem('token_FirefoxSend') : '',
         autenticado:null,
         usuario: null,
         mensaje: null,
@@ -50,14 +51,58 @@ const AuthState = ({children}) => {
     },3000)
     }
 
-    //Usuario autentificado
-    const usuarioAutenticado = nombre => {
+    //Iniciar Sesión
+    const iniciarSesion = async (datosFormulario) => {
+        // console.log(datosFormulario)
+
+        try {
+            const respuesta = await clienteAxios.post('/api/auth',datosFormulario)
+            // console.log(respuesta.data.token)
+            dispath({
+                type: LOGIN_EXITOSO,
+                payload: respuesta.data.token
+            })
+            limpiar_mensaje();
+        } catch (error) {
+            // console.log(error.response.data.msg)
+            dispath({
+                type: LOGIN_ERROR,
+                payload: error.response.data.msg
+            })
+            limpiar_mensaje();
+        }
+    }
+
+    //Retorne el usuario autenticado en base al JWT
+    const usuarioAutenticado = async () => {
+       const token = localStorage.getItem('token_FirefoxSend')
+       if (token){
+        tokenAuth(token)
+       }
+       try {
+        const respuesta = await clienteAxios.get('/api/auth')
+        // console.log(respuesta.data.usuario)
         dispath({
             type: USUARIO_AUTENTICADO,
-            payload:nombre
+            payload: respuesta.data.usuario
+        })
+       } catch (error) {
+         // console.log(error.response.data.msg)
+         dispath({
+            type: LOGIN_ERROR,
+            payload: error.response.data.msg
+        })
+        limpiar_mensaje();
+       }
+    }
+
+    //Cerrar la sesión.
+    const cerrarSesion = () => {
+        dispath({
+            type: CERRAR_SESION
         })
     }
-   
+
 
     return (
         <AuthContext.Provider
@@ -67,7 +112,10 @@ const AuthState = ({children}) => {
                 usuario: state.usuario,
                 mensaje: state.mensaje,
                 usuarioAutenticado,
-                registrarUsuario
+                registrarUsuario,
+                iniciarSesion,
+                usuarioAutenticado,
+                cerrarSesion
             }}
         >
             {children}

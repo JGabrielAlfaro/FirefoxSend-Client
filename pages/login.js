@@ -1,8 +1,26 @@
 import Layout from "@/components/Layout"
 import { useFormik } from "formik"
 import * as Yup from 'yup'
+import { useContext,useEffect } from "react"
+import AuthContext from "@/context/auth/authContext"
+import Alerta from "@/components/Alerta"
+import {useRouter} from 'next/router'
 
 export default function Login() {
+
+  //Definir el context
+   const authContext = useContext(AuthContext)
+   const {iniciarSesion,mensaje,autenticado} = authContext;
+
+   //Router
+   const router = useRouter()
+
+   //Valida si estamos autenticado
+   useEffect(()=>{
+    if (autenticado){
+        router.push('/')
+    }
+   },[autenticado])
 
    //Formulario y validacion con formik
    const formik = useFormik({
@@ -14,8 +32,8 @@ export default function Login() {
         email: Yup.string().email("El email no es valido").required('El email es Obligatorio'),
         password:  Yup.string().required('El password es Obligatorio')
     }),
-    onSubmit: (data) =>{
-        console.log("Enviando formulario", data)
+    onSubmit: (datosFormulario) =>{
+       iniciarSesion(datosFormulario)
     }
 })
 
@@ -23,7 +41,9 @@ export default function Login() {
     <Layout>
       <div className="md:w-4/5 xl:w-3/5 mb-32">
         <h2 className="text-4xl font-sans font-bold text-center text-gray-800 my-4">Iniciar Sesión</h2>
-
+        {
+            mensaje && < Alerta />
+        }
         <div className="flex justify-center mt-5">
             <div className="w-full max-w-lg">
                 <form
