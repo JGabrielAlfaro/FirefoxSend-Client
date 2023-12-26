@@ -3,7 +3,19 @@ import Layout from "@/components/Layout"
 import { useFormik } from "formik"
 import * as Yup from 'yup'
 
+
+//Permite leer los datos del Context.
+import { useContext, useEffect } from "react" 
+import AuthContext from "@/context/auth/authContext"
+import Alerta from "@/components/Alerta"
+
 export default function CrearCuenta() {
+
+    //Acceder al state
+     const authContext = useContext(AuthContext);
+     const {mensaje,registrarUsuario,usuarioAutenticado,token}= authContext;
+
+
 
     //Formulario y validacion con formik
     const formik = useFormik({
@@ -18,7 +30,7 @@ export default function CrearCuenta() {
             password:  Yup.string().required('El password es Obligatorio').min(6,"El password debe contener al menos 6 caracteres")
         }),
         onSubmit: (data) =>{
-            console.log("Enviando formulario", data)
+            registrarUsuario(data)
         }
     })
   return (
@@ -26,6 +38,9 @@ export default function CrearCuenta() {
       <div className="md:w-4/5 xl:w-3/5 mb-32">
         <h2 className="text-4xl font-sans font-bold text-center text-gray-800 my-4">Crear cuenta</h2>
 
+        {
+            mensaje && <Alerta />
+        }
         <div className="flex justify-center mt-5">
             <div className="w-full max-w-lg">
                 <form
