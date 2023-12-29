@@ -4,3 +4,11 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
+
+
+// module.exports = {
+//   env: {
+//     backenURL: 'http://localhost:4000',
+//     frontendURL: 'http://localhost:3000'
+//   }
+// }
