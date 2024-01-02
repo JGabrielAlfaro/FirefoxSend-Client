@@ -1,5 +1,5 @@
 import { useReducer } from "react";
-import {MOSTRAR_ALERTA,OCULTAR_ALERTA,SUBIR_ARCHIVO,SUBIR_ARCHIVO_EXITO,SUBIR_ARCHIVO_ERROR,CREAR_ENLACE_EXITO,CREAR_ENLACE_ERROR} from '../../types'
+import {MOSTRAR_ALERTA,OCULTAR_ALERTA,SUBIR_ARCHIVO,SUBIR_ARCHIVO_EXITO,SUBIR_ARCHIVO_ERROR,CREAR_ENLACE_EXITO,CREAR_ENLACE_ERROR,LIMPIAR_STATE} from '../../types'
 import AppContext from "./appContext";
 import AppReducer from './appReducer';
 import clienteAxios from "@/config/axios";
@@ -39,58 +39,65 @@ import clienteAxios from "@/config/axios";
           type:OCULTAR_ALERTA,
       })
   },3000)
-  }
-
-  //Sube los archivos al servidor
-  const subirArchivo = async(formData,nombreArchivo) =>{
-    // console.log("Subiendo archivos")
-
-    dispath({
-      type: SUBIR_ARCHIVO,
-    })
-
-    try {
-      const resultado = await clienteAxios.post('/api/archivos',formData)
-      dispath({
-        type: SUBIR_ARCHIVO_EXITO,
-        payload:{
-          nombre:resultado.data.archivo,
-          nombre_original:nombreArchivo
-        }
-      })
-      console.log(resultado.data)
-      
-    } catch (error) {
-      dispath({
-        type: SUBIR_ARCHIVO_ERROR,
-        payload:error.response.data.msg
-      })
-      
-    }finally{
-      limpiar_mensaje() ;
     }
-  }
 
+    //Sube los archivos al servidor
+    const subirArchivo = async(formData,nombreArchivo) =>{
+      // console.log("Subiendo archivos")
 
-  const crearEnlace = async () => {
-    const data = {
-      nombre: state.nombre,
-      nombre_original: state.nombre_original,
-      descargas: state.descargas,
-      password: state.password,
-      autor: state.autor
-    }
-    try {
-      const resultado = await clienteAxios.post('/api/enlaces',data);
-      console.log(resultado.data.msg)
       dispath({
-        type: CREAR_ENLACE_EXITO,
-        payload: resultado.data.msg
+        type: SUBIR_ARCHIVO,
       })
-    } catch (error) {
-      console.log(error)
+
+      try {
+        const resultado = await clienteAxios.post('/api/archivos',formData)
+        dispath({
+          type: SUBIR_ARCHIVO_EXITO,
+          payload:{
+            nombre:resultado.data.archivo,
+            nombre_original:nombreArchivo
+          }
+        })
+        console.log(resultado.data)
+        
+      } catch (error) {
+        dispath({
+          type: SUBIR_ARCHIVO_ERROR,
+          payload:error.response.data.msg
+        })
+        
+      }finally{
+        limpiar_mensaje() ;
+      }
     }
-}
+
+    const crearEnlace = async () => {
+      const data = {
+        nombre: state.nombre,
+        nombre_original: state.nombre_original,
+        descargas: state.descargas,
+        password: state.password,
+        autor: state.autor
+      }
+      try {
+        const resultado = await clienteAxios.post('/api/enlaces',data);
+        console.log(resultado.data.msg)
+        dispath({
+          type: CREAR_ENLACE_EXITO,
+          payload: resultado.data.msg
+        })
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    const limpiarState = () => {
+      dispath({
+        type:LIMPIAR_STATE,
+      })
+    }
+
+
 
     return (
       <AppContext.Provider
@@ -105,7 +112,8 @@ import clienteAxios from "@/config/axios";
             url:state.url,
             mostrarAlerta,
             subirArchivo,
-            crearEnlace
+            crearEnlace,
+            limpiarState
             
           }}
       >

@@ -1,5 +1,5 @@
 
-import {MOSTRAR_ALERTA,OCULTAR_ALERTA,SUBIR_ARCHIVO,SUBIR_ARCHIVO_EXITO,SUBIR_ARCHIVO_ERROR,CREAR_ENLACE_EXITO,CREAR_ENLACE_ERROR} from '../../types'
+import {MOSTRAR_ALERTA,OCULTAR_ALERTA,SUBIR_ARCHIVO,SUBIR_ARCHIVO_EXITO,SUBIR_ARCHIVO_ERROR,CREAR_ENLACE_EXITO,CREAR_ENLACE_ERROR,LIMPIAR_STATE} from '../../types'
 
 export default (state, action) => {
   switch (action.type) {
@@ -33,6 +33,18 @@ export default (state, action) => {
           ...state,
           url: action.payload
         }
+    case LIMPIAR_STATE:
+          return {
+            ...state,
+            mensaje_archivo: null,
+            nombre:'',
+            nombre_original:'',
+            cargando: null,
+            descargas:1,
+            password: '',
+            autor: null,
+            url:''
+          }
     default:
       return state;
   }
